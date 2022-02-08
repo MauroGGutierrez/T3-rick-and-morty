@@ -1,36 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import './rick-and-morty.css';
+import React, { useEffect, useState } from "react";
+import "./rick-and-morty.css";
 
 function RickMorty() {
-  const [listCharacter, setListCharacter] = useState([]); //el array donde estan todos los personajes 
-  const [character, setCharacter] = useState(''); // recibe el id de cada personaje 
-  const [selected, setSelected] = useState(''); // devuelve el personaje seleccionado
-  const [add, setAdd] = useState([]);
+  const [listCharacter, setListCharacter] = useState([]); //el array donde estan todos los personajes
+  const [character, setCharacter] = useState(""); // recibe el id de cada personaje
+  const [selected, setSelected] = useState({}); // devuelve el personaje seleccionado
 
-
-  const ObtenerDatos = async() => {
-    const url = await fetch ('https://rickandmortyapi.com/api/character');
+  const ObtenerDatos = async () => {
+    const url = await fetch("https://rickandmortyapi.com/api/character");
     const data = await url.json();
-    console.log(data.results);
     setListCharacter(data.results);
-  }
+  };
 
-  const selectCharacter = async(e) => {
-    setSelected(character);
-    if (selected !== '') {
-      const url = await fetch(`https://rickandmortyapi.com/api/character/${selected}`);
+  const selectCharacter = async () => {
+    if (selected !== "") {
+      const url = await fetch(
+        `https://rickandmortyapi.com/api/character/${character}`
+      );
       const data = await url.json();
-      console.log({ name: data.name, status: data.status, species: data.species, image: data.image });
-      setAdd([ {name: data.name, status: data.status, species: data.species, image: data.image} ]);
+      setSelected(data);
     }
-  }
-
-  // const onChangeBox =(e) => {
-  //   const selectedId = e.target.value;
-  //   const selectedPj = data.results.filter((d) => d.id == selectedId)[0];
-  //   setCharacter(selectedPj)
-  // }
-
+  };
   useEffect(() => {
     // fetch ("https://rickandmortyapi.com/api/character")
     // .then((res) => res.json())
@@ -44,37 +34,40 @@ function RickMorty() {
   }, []);
 
   useEffect(() => {
-    selectCharacter()
-  },[character]);
+    selectCharacter();
+  }, [character]);
 
   return (
     <div className="container">
       <h1>Rick and Morty App</h1>
-      <select value={ character?.id } onChange={(e) => setCharacter(e.target.value) } name="select"> 
-      <option value={""}> -- Select a Character --</option>
-        {
-          listCharacter.map(item => {
-            return <option key={item.id} value={item.id}>{item.name}</option>
-          })
-        };
+      <select value={character} onChange={(e) => setCharacter(e.target.value)}>
+        <option value=""> -- Select a Character --</option>
+        {listCharacter.map((item) => (
+          <option key={item.id} value={item.id}>
+            {item.name}
+          </option>
+        ))}
+        ;
       </select>
       <div>
-        {
-          add.map (card => {
-              return( 
-                <div key={card} className="cards">
-                <img src={card.image} alt={card.name} />
-                <div className='card-txt'>
-                  <h2>{card.name}</h2>
-                  <div className='txt'>
-                  <p>species: <b>{card.species}</b> </p>
-                  <p>status: <b>{card.status}</b> </p>
-                  </div>
-                </div>
+        {selected?.name ? (
+          <div className="cards">
+            <img src={selected.image} alt={selected.name} />
+            <div className="card-txt">
+              <h2>{selected.name}</h2>
+              <div className="txt">
+                <p>
+                  species: <b>{selected.species}</b>{" "}
+                </p>
+                <p>
+                  status: <b>{selected.status}</b>{" "}
+                </p>
               </div>
-              )
-          })
-        }
+            </div>
+          </div>
+        ) : (
+          <p className="loading-txt">Seleccione un personaje</p>
+        )}
       </div>
     </div>
   );
